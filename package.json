@@ -5,23 +5,31 @@
     "api_gateway": "bin/api_gateway.js"
   },
   "scripts": {
+    "clean": "rimraf dist/",
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.10",
-    "@types/node": "10.17.27",
-    "jest": "^26.4.2",
-    "ts-jest": "^26.2.0",
-    "aws-cdk": "2.8.0",
-    "ts-node": "^9.0.0",
-    "typescript": "~3.9.7"
+    "@types/node": "10.17.0",
+    "copyfiles": "^2.4.1",
+    "rimraf": "^3.0.2",
+    "ts-node": "^8.1.0",
+    "typescript": "~3.7.2"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.8.0",
-    "constructs": "^10.0.0",
-    "source-map-support": "^0.5.16"
+    "@aws-cdk/core": "latest",
+    "@aws-cdk/aws-appsync": "*",
+    "@aws-cdk/aws-cloudtrail": "*",
+    "@aws-cdk/aws-events": "*",
+    "@aws-cdk/aws-events-targets": "*",
+    "@aws-cdk/aws-iam": "*",
+    "@aws-cdk/aws-lambda": "*",
+    "@aws-cdk/aws-stepfunctions-tasks": "*",
+    "dotenv": "^10.0.0",
+    "handlebars": "^4.7.7",
+    "module-alias": "^2.2.2",
+    "source-map-support": "^0.5.9"
   }
 }
