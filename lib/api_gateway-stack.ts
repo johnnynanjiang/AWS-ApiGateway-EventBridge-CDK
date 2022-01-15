@@ -10,9 +10,9 @@ export class JJRestAPIStack extends cdk.Stack {
     super(scope, id, props);
     
     const myLambda = new lambda.Function(this, "MyEventProcessor", {
-      code: new lambda.InlineCode("def main(event, context):\n\tprint(event)\n\treturn {'statusCode': 200, 'body': 'Hello, World'}"),
-      handler: "index.main",
-      runtime: lambda.Runtime.PYTHON_3_7
+      code: new lambda.InlineCode(`exports.handler = (event) => { console.log('event:', event); return {'statusCode': 200, 'body': event}; }`),
+      handler: "index.handler",
+      runtime: lambda.Runtime.NODEJS_14_X
     })
     
     const bus = new events.EventBus(this, "MyLanguageBus")
@@ -36,9 +36,18 @@ export class JJRestAPIStack extends cdk.Stack {
       }
     });
 
-    const myRestAPI = new apigw.RestApi(this, "JJRestAPI");
+    const myRestAPI = new apigw.RestApi(
+      this, 
+      "JJRestAPI",
+      {
+        deployOptions: {
+          loggingLevel: apigw.MethodLoggingLevel.INFO,
+          dataTraceEnabled: true,
+        },  
+      }
+    );
 
-    const languageResource = myRestAPI.root.addResource("{language}");
+    const languageResource = myRestAPI.root.addResource("assembly");
     
     const options = {
       credentialsRole: apigwRole,
@@ -47,7 +56,7 @@ export class JJRestAPIStack extends cdk.Stack {
         "integration.request.header.Content-Type": "'application/x-amz-json-1.1'"
       },
       requestTemplates: {
-        "application/json": `#set($language=$input.params('language'))\n{"Entries": [{"Source": "com.amazon.alexa.$language", "Detail": "{ \\"key1\\": \\"value1\\", \\"key2\\": \\"value2\\" }", "Resources": ["resource1", "resource2"], "DetailType": "myDetailType", "EventBusName": "${bus.eventBusName}"}]}`
+        "application/json": `#set($language=$input.params('language'))\n{"Entries": [{"Source": "com.amazon.alexa.english", "Detail": "{ \\"key1\\": \\"value1\\", \\"key2\\": \\"value2\\" }", "Resources": ["resource1", "resource2"], "DetailType": "myDetailType", "EventBusName": "${bus.eventBusName}"}]}`
       },
       integrationResponses: [{
         statusCode: "200",
@@ -57,10 +66,10 @@ export class JJRestAPIStack extends cdk.Stack {
       }]
     }
     
-    languageResource.addMethod("POST", new apigw.Integration({
+    languageResource.addMethod("ANY", new apigw.Integration({
       type: apigw.IntegrationType.AWS,
       uri: `arn:aws:apigateway:${cdk.Aws.REGION}:events:path//`,
-      integrationHttpMethod: "POST",
+      integrationHttpMethod: "ANY",
       options: options,
     }),
     {
