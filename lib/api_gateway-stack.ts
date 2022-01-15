@@ -56,7 +56,7 @@ export class JJRestAPIStack extends cdk.Stack {
         "integration.request.header.Content-Type": "'application/x-amz-json-1.1'"
       },
       requestTemplates: {
-        "application/json": `{"Entries": [{"Source": "com.amazon.alexa.english", "Detail": "$util.escapeJavaScript($input.body)", "Resources": ["resource1", "resource2"], "DetailType": "myDetailType", "EventBusName": "${bus.eventBusName}"}]}`
+        "application/json": `{"Entries": [{"Source": "com.amazon.alexa.english", "Detail": "$util.escapeJavaScript($input.json('$'))", "Resources": ["resource1", "resource2"], "DetailType": "myDetailType", "EventBusName": "${bus.eventBusName}"}]}`
       },
       integrationResponses: [{
         statusCode: "200",
