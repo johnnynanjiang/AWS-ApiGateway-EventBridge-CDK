@@ -49,31 +49,29 @@ export class JJRestAPIStack extends cdk.Stack {
 
     const languageResource = myRestAPI.root.addResource("assembly");
     
-    const options = {
-      credentialsRole: apigwRole,
-      requestParameters: {
-        "integration.request.header.X-Amz-Target": "'AWSEvents.PutEvents'",
-        "integration.request.header.Content-Type": "'application/x-amz-json-1.1'"
-      },
-      requestTemplates: {
-        "application/json": `{"Entries": [{"Source": "com.amazon.alexa.english", "Detail": "$util.escapeJavaScript($input.json('$'))", "Resources": ["resource1", "resource2"], "DetailType": "myDetailType", "EventBusName": "${bus.eventBusName}"}]}`
-      },
-      integrationResponses: [{
-        statusCode: "200",
-        responseTemplates: {
-          "application/json": ""
-        }
-      }]
-    }
-    
-    languageResource.addMethod("ANY", new apigw.Integration({
+    languageResource.addMethod("POST", new apigw.Integration({
       type: apigw.IntegrationType.AWS,
       uri: `arn:aws:apigateway:${cdk.Aws.REGION}:events:path//`,
-      integrationHttpMethod: "ANY",
-      options: options,
+      integrationHttpMethod: "POST",
+      options: {
+        credentialsRole: apigwRole,
+        requestParameters: {
+          "integration.request.header.X-Amz-Target": "'AWSEvents.PutEvents'",
+          "integration.request.header.Content-Type": "'application/x-amz-json-1.1'"
+        },
+        requestTemplates: {
+          "application/json": `{"Entries": [{"Source": "com.amazon.alexa.english", "Detail": "$util.escapeJavaScript($input.json('$'))", "Resources": ["resource1", "resource2"], "DetailType": "myDetailType", "EventBusName": "${bus.eventBusName}"}]}`
+        },
+        integrationResponses: [{
+          statusCode: "200",
+          responseTemplates: {
+            "application/json": ""
+          }
+        }]
+      },
     }),
     {
       methodResponses: [{statusCode: "200"}]
-    })
+    });
   }
 }
